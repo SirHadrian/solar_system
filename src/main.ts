@@ -1,23 +1,137 @@
-import './style.css'
-import typescriptLogo from './typescript.svg'
-import { setupCounter } from './counter'
+import {
+  Scene,
+  Mesh,
+  WebGLRenderer,
+  TextureLoader,
+  PerspectiveCamera,
+  sRGBEncoding,
+  AmbientLight,
+  ColorRepresentation,
+  SphereGeometry,
+  MeshBasicMaterial,
+  Vector3,
+  Group,
+  Line,
+  BufferGeometry,
+  LineBasicMaterial,
+  Object3D,
+} from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
-`
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+class SceneSetup extends Scene {
+
+  constructor() {
+
+    super();
+
+  }
+
+}
+
+
+class CameraSetup extends PerspectiveCamera {
+
+  constructor( fov: number, aspectRatio: number, nearDistance: number, farDistance: number ) {
+
+    super( fov, aspectRatio, nearDistance, farDistance );
+
+    this.position.set( 0, 0, 200 );
+    this.lookAt( 0, 0, 0 );
+  }
+}
+
+
+class RendererSetup extends WebGLRenderer {
+
+  constructor( configs: object, camera: CameraSetup ) {
+
+    super( configs );
+
+    this.setSize( window.innerWidth, window.innerHeight );
+    this.setPixelRatio( window.devicePixelRatio );
+    this.outputEncoding = sRGBEncoding;
+
+    // Inject renderer to DOM
+    const target = document.getElementById( "app" );
+    target?.appendChild( this.domElement );
+
+    // OrbitControls
+    new OrbitControls( camera, this.domElement );
+  }
+}
+
+class LightSetup extends AmbientLight {
+
+  constructor( scene: Scene, color: ColorRepresentation, intensity: number ) {
+
+    super( color, intensity );
+
+    this.position.set( 0, 50, 100 );
+
+    // DEBUG light
+    const light_sphere = new Mesh(
+      new SphereGeometry( 10, 10, 10 ),
+      new MeshBasicMaterial( {
+        color: 0xffffff,
+      } )
+    );
+    light_sphere.position.set( this.position.x, this.position.y, this.position.z );
+    scene.add( light_sphere );
+    // ===========
+
+  }
+}
+
+
+function main(){
+  
+//#region INIT
+  // Create Scene
+  const scene = new SceneSetup();
+
+  // Create Camera
+  const camera = new CameraSetup(
+    50, // FOV
+    window.innerWidth / window.innerHeight, // Aspect ratio
+    0.1, // Near: distance objects apear on camera
+    1000, // Far: distance objects disapear from camera
+  );
+
+  // Create Renderer
+  const renderer = new RendererSetup( { antialiasing: true }, camera );
+
+  // Create light source
+  const light = new LightSetup(
+    scene,
+    0xffffff,
+    1
+  );
+  scene.add( light );
+  //#endregion
+
+
+
+  
+//#region Main loop and events
+  // On window resize
+  const resize = () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize( window.innerWidth, window.innerHeight );
+  }
+  window.addEventListener( "resize", resize, false );
+
+  // Animation loop
+  const animate = () => {
+
+
+    renderer.render( scene, camera );
+    requestAnimationFrame( animate );
+  }
+  animate();
+  //#endregion
+}
+
+
+main()
