@@ -2,19 +2,12 @@ import {
   Scene,
   Mesh,
   WebGLRenderer,
-  TextureLoader,
   PerspectiveCamera,
   sRGBEncoding,
   AmbientLight,
   ColorRepresentation,
   SphereGeometry,
   MeshBasicMaterial,
-  Vector3,
-  Group,
-  Line,
-  BufferGeometry,
-  LineBasicMaterial,
-  Object3D,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
@@ -32,61 +25,62 @@ class SceneSetup extends Scene {
 
 class CameraSetup extends PerspectiveCamera {
 
-  constructor( fov: number, aspectRatio: number, nearDistance: number, farDistance: number ) {
+  constructor(fov: number, aspectRatio: number, nearDistance: number, farDistance: number) {
 
-    super( fov, aspectRatio, nearDistance, farDistance );
+    super(fov, aspectRatio, nearDistance, farDistance);
 
-    this.position.set( 0, 0, 200 );
-    this.lookAt( 0, 0, 0 );
+    this.position.set(0, 0, 200);
+    this.lookAt(0, 0, 0);
   }
 }
 
 
 class RendererSetup extends WebGLRenderer {
 
-  constructor( configs: object, camera: CameraSetup ) {
+  constructor(configs: object, camera: CameraSetup) {
 
-    super( configs );
+    super(configs);
 
-    this.setSize( window.innerWidth, window.innerHeight );
-    this.setPixelRatio( window.devicePixelRatio );
+    this.setSize(window.innerWidth, window.innerHeight);
+    this.setPixelRatio(window.devicePixelRatio);
     this.outputEncoding = sRGBEncoding;
 
     // Inject renderer to DOM
-    const target = document.getElementById( "app" );
-    target?.appendChild( this.domElement );
+    const target = document.getElementById("app");
+    target?.appendChild(this.domElement);
 
     // OrbitControls
-    new OrbitControls( camera, this.domElement );
+    new OrbitControls(camera, this.domElement);
   }
 }
 
 class LightSetup extends AmbientLight {
 
-  constructor( scene: Scene, color: ColorRepresentation, intensity: number ) {
+  constructor(scene: Scene, color: ColorRepresentation, intensity: number) {
 
-    super( color, intensity );
+    super(color, intensity);
 
-    this.position.set( 0, 50, 100 );
+    this.position.set(0, 50, 100);
 
     // DEBUG light
     const light_sphere = new Mesh(
-      new SphereGeometry( 10, 10, 10 ),
-      new MeshBasicMaterial( {
+      new SphereGeometry(10, 10, 10),
+      new MeshBasicMaterial({
         color: 0xffffff,
-      } )
+      })
     );
-    light_sphere.position.set( this.position.x, this.position.y, this.position.z );
-    scene.add( light_sphere );
+    light_sphere.position.set(this.position.x, this.position.y, this.position.z);
+    scene.add(light_sphere);
     // ===========
 
   }
 }
 
 
-function main(){
-  
-//#region INIT
+function main() {
+
+  //#region INIT
+
   // Create Scene
   const scene = new SceneSetup();
 
@@ -99,7 +93,7 @@ function main(){
   );
 
   // Create Renderer
-  const renderer = new RendererSetup( { antialiasing: true }, camera );
+  const renderer = new RendererSetup({ antialiasing: true }, camera);
 
   // Create light source
   const light = new LightSetup(
@@ -107,29 +101,30 @@ function main(){
     0xffffff,
     1
   );
-  scene.add( light );
+
+  scene.add(light);
+
   //#endregion
 
+  //#region Main loop and events
 
-
-  
-//#region Main loop and events
   // On window resize
   const resize = () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setSize(window.innerWidth, window.innerHeight);
   }
-  window.addEventListener( "resize", resize, false );
+  window.addEventListener("resize", resize, false);
 
   // Animation loop
   const animate = () => {
 
 
-    renderer.render( scene, camera );
-    requestAnimationFrame( animate );
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
   }
   animate();
+
   //#endregion
 }
 
