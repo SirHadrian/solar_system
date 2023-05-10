@@ -8,9 +8,24 @@ import {
   ColorRepresentation,
   SphereGeometry,
   MeshBasicMaterial,
+  ShaderMaterial,
+  Clock,
+  Vector2,
+  Uniform,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
+import _Sun_VS from './shaders/sun_VS.c?raw'
+import _Sun_FS from './shaders/sun_FS.c?raw'
+
+import _Atmo_VS from './shaders/atmosphere_VS.c?raw'
+import _Atmo_FS from './shaders/atmosphere_FS.c?raw'
+
+const clock = new Clock()
+const uniforms = {
+  R: new Uniform(new Vector2(window.innerWidth, window.innerHeight)),
+  T: { value: 1.0 },
+}
 
 class SceneSetup extends Scene {
 
@@ -106,6 +121,30 @@ function main() {
 
   //#endregion
 
+  //#region PlayGround
+
+  const gSphere = new SphereGeometry(5, 50, 50)
+  const mSphere = new ShaderMaterial({
+    vertexShader: _Sun_VS,
+    fragmentShader: _Sun_FS,
+    uniforms,
+  })
+  const sphere = new Mesh(gSphere, mSphere)
+  scene.add(sphere)
+
+  const gAtmophere = new SphereGeometry(5, 50, 50)
+  const mAtmosphere = new ShaderMaterial({
+    vertexShader: _Atmo_VS,
+    fragmentShader: _Atmo_FS,
+    uniforms,
+    transparent: true,
+  })
+  const atmosphere = new Mesh(gAtmophere, mAtmosphere)
+  atmosphere.scale.set(1.1, 1.1, 1.1)
+  scene.add(atmosphere)
+
+  //#endregion
+
   //#region Main loop and events
 
   // On window resize
@@ -119,11 +158,12 @@ function main() {
   // Animation loop
   const animate = () => {
 
+    uniforms.T.value = clock.getElapsedTime()
 
-    renderer.render(scene, camera);
-    requestAnimationFrame(animate);
+    renderer.render(scene, camera)
+    requestAnimationFrame(animate)
   }
-  animate();
+  animate()
 
   //#endregion
 }
