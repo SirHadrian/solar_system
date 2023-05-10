@@ -123,7 +123,7 @@ function main() {
 
   //#region PlayGround
 
-  const gSphere = new SphereGeometry(5, 50, 50)
+  const gSphere = new SphereGeometry(10, 50, 50)
   const mSphere = new ShaderMaterial({
     vertexShader: _Sun_VS,
     fragmentShader: _Sun_FS,
@@ -132,7 +132,7 @@ function main() {
   const sphere = new Mesh(gSphere, mSphere)
   scene.add(sphere)
 
-  const gAtmophere = new SphereGeometry(5, 50, 50)
+  const gAtmophere = new SphereGeometry(10, 50, 50)
   const mAtmosphere = new ShaderMaterial({
     vertexShader: _Atmo_VS,
     fragmentShader: _Atmo_FS,
