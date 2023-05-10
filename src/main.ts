@@ -12,8 +12,8 @@ import {
   Clock,
   Vector2,
   Uniform,
-} from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+} from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 import _Sun_VS from './shaders/sun_VS.c?raw'
 import _Sun_FS from './shaders/sun_FS.c?raw'
@@ -31,7 +31,7 @@ class SceneSetup extends Scene {
 
   constructor() {
 
-    super();
+    super()
 
   }
 
@@ -42,10 +42,10 @@ class CameraSetup extends PerspectiveCamera {
 
   constructor(fov: number, aspectRatio: number, nearDistance: number, farDistance: number) {
 
-    super(fov, aspectRatio, nearDistance, farDistance);
+    super(fov, aspectRatio, nearDistance, farDistance)
 
-    this.position.set(0, 0, 200);
-    this.lookAt(0, 0, 0);
+    this.position.set(0, 0, 200)
+    this.lookAt(0, 0, 0)
   }
 }
 
@@ -54,18 +54,18 @@ class RendererSetup extends WebGLRenderer {
 
   constructor(configs: object, camera: CameraSetup) {
 
-    super(configs);
+    super(configs)
 
-    this.setSize(window.innerWidth, window.innerHeight);
-    this.setPixelRatio(window.devicePixelRatio);
-    this.outputEncoding = sRGBEncoding;
+    this.setSize(window.innerWidth, window.innerHeight)
+    this.setPixelRatio(window.devicePixelRatio)
+    this.outputEncoding = sRGBEncoding
 
     // Inject renderer to DOM
-    const target = document.getElementById("app");
-    target?.appendChild(this.domElement);
+    const target = document.getElementById("app")
+    target?.appendChild(this.domElement)
 
     // OrbitControls
-    new OrbitControls(camera, this.domElement);
+    new OrbitControls(camera, this.domElement)
   }
 }
 
@@ -73,9 +73,9 @@ class LightSetup extends AmbientLight {
 
   constructor(scene: Scene, color: ColorRepresentation, intensity: number) {
 
-    super(color, intensity);
+    super(color, intensity)
 
-    this.position.set(0, 50, 100);
+    this.position.set(0, 50, 100)
 
     // DEBUG light
     const light_sphere = new Mesh(
@@ -83,9 +83,9 @@ class LightSetup extends AmbientLight {
       new MeshBasicMaterial({
         color: 0xffffff,
       })
-    );
-    light_sphere.position.set(this.position.x, this.position.y, this.position.z);
-    scene.add(light_sphere);
+    )
+    light_sphere.position.set(this.position.x, this.position.y, this.position.z)
+    scene.add(light_sphere)
     // ===========
 
   }
@@ -97,7 +97,7 @@ function main() {
   //#region INIT
 
   // Create Scene
-  const scene = new SceneSetup();
+  const scene = new SceneSetup()
 
   // Create Camera
   const camera = new CameraSetup(
@@ -105,19 +105,19 @@ function main() {
     window.innerWidth / window.innerHeight, // Aspect ratio
     0.1, // Near: distance objects apear on camera
     1000, // Far: distance objects disapear from camera
-  );
+  )
 
   // Create Renderer
-  const renderer = new RendererSetup({ antialiasing: true }, camera);
+  const renderer = new RendererSetup({ antialiasing: true }, camera)
 
   // Create light source
   const light = new LightSetup(
     scene,
     0xffffff,
     1
-  );
+  )
 
-  scene.add(light);
+  scene.add(light)
 
   //#endregion
 
@@ -149,11 +149,11 @@ function main() {
 
   // On window resize
   const resize = () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight
+    camera.updateProjectionMatrix()
+    renderer.setSize(window.innerWidth, window.innerHeight)
   }
-  window.addEventListener("resize", resize, false);
+  window.addEventListener("resize", resize, false)
 
   // Animation loop
   const animate = () => {
