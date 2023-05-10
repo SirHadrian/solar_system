@@ -1,5 +1,12 @@
 import {
   Scene,
+  AdditiveBlending,
+  Points,
+  PointsMaterial,
+  BackSide,
+  BufferGeometry,
+  Float32BufferAttribute,
+  TextureLoader,
   Mesh,
   WebGLRenderer,
   PerspectiveCamera,
@@ -12,14 +19,23 @@ import {
   Clock,
   Vector2,
   Uniform,
+  Vector3,
 } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
+// Sun
 import _Sun_VS from './shaders/sun_VS.c?raw'
 import _Sun_FS from './shaders/sun_FS.c?raw'
 
 import _Atmo_VS from './shaders/atmosphere_VS.c?raw'
 import _Atmo_FS from './shaders/atmosphere_FS.c?raw'
+
+// Earth
+import _Earth_VS from './shaders/_Earth_VS?raw'
+import _Earth_FS from './shaders/_Earth_FS?raw'
+
+import _Atmosphere_VS from './shaders/_Atmosphere_VS?raw'
+import _Atmosphere_FS from './shaders/_Atmosphere_FS?raw'
 
 const clock = new Clock()
 const uniforms = {
@@ -143,6 +159,88 @@ function main() {
   atmosphere.scale.set(1.1, 1.1, 1.1)
   scene.add(atmosphere)
 
+
+  // Earth
+  const earth = new Mesh(
+    new SphereGeometry(10, 50, 50),
+    new ShaderMaterial({
+      vertexShader: _Earth_VS,
+      fragmentShader: _Earth_FS,
+      uniforms: {
+        globeTexture: {
+          value: new TextureLoader().load('./assets/earth.jpg'),
+        }
+      }
+    })
+  )
+  earth.rotateZ(-0.1)
+  earth.position.add(new Vector3(-30, 0, 0))
+  scene.add(earth)
+
+  // Clouds
+  const clouds = new Mesh(
+    new SphereGeometry(10, 50, 50),
+    new ShaderMaterial({
+      vertexShader: _Earth_VS,
+      fragmentShader: _Earth_FS,
+      blending: AdditiveBlending,
+      transparent: true,
+      uniforms: {
+        globeTexture: {
+          value: new TextureLoader().load('./assets/clouds.jpg'),
+        }
+      }
+    })
+  )
+  clouds.scale.set(1.01, 1.01, 1.01)
+  clouds.position.add(new Vector3(-30, 0, 0))
+  scene.add(clouds)
+
+  // Atmosphere
+  const earth_atmosphere = new Mesh(
+    new SphereGeometry(10, 50, 50),
+    new ShaderMaterial({
+      vertexShader: _Atmosphere_VS,
+      fragmentShader: _Atmosphere_FS,
+      blending: AdditiveBlending,
+      side: BackSide,
+    })
+  )
+  earth_atmosphere.scale.set(1.1, 1.1, 1.1)
+  earth_atmosphere.position.add(new Vector3(-30, 0, 0))
+  scene.add(earth_atmosphere)
+
+
+  // Stars
+  const material = new PointsMaterial({
+    size: 10,
+    map: new TextureLoader().load(
+      "./assets/star.png"
+    ),
+    transparent: true,
+  })
+
+  const geometry = new BufferGeometry()
+  const generatePoints = (num: number) => {
+    const stars = []
+    for (let i = 0; i < num * 3; ++i) {
+      let x = (Math.random() - 0.5) * 2000
+      let y = (Math.random() - 0.5) * 2000
+      let z = -1 * Math.random() * 2000
+
+      stars.push(x, y, z)
+    }
+    return stars
+  }
+
+  geometry.setAttribute(
+    "position",
+    new Float32BufferAttribute(generatePoints(1000), 3)
+  )
+
+  const stars = new Points(geometry, material)
+  scene.add(stars)
+
   //#endregion
 
   //#region Main loop and events
@@ -160,6 +258,9 @@ function main() {
 
     uniforms.T.value = clock.getElapsedTime()
 
+    earth.rotateY(0.01)
+    clouds.rotateY(0.01)
+
     renderer.render(scene, camera)
     requestAnimationFrame(animate)
   }
@@ -167,6 +268,5 @@ function main() {
 
   //#endregion
 }
-
 
 main()
